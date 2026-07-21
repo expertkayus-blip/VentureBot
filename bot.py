@@ -20,8 +20,8 @@ if not TOKEN:
     logger.error("TELEGRAM_BOT_TOKEN not set!")
     exit(1)
 
-# Initialize bot with more robust settings
-bot = telebot.TeleBot(TOKEN, threaded=False)
+# Initialize bot
+bot = telebot.TeleBot(TOKEN)
 
 # Business ideas
 BUSINESS_IDEAS = [
@@ -222,14 +222,13 @@ def handle_new_members(message):
     except Exception as e:
         logger.error(f"Error in new_members handler: {e}")
 
-# Error handler
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
     """Handle any other messages"""
     try:
         chat_id = message.chat.id
+        # Don't reply to non-command messages
         logger.info(f"Message from chat {chat_id}: {message.text}")
-        # Don't reply to non-command messages to avoid spam
     except Exception as e:
         logger.error(f"Error in echo_all: {e}")
 
@@ -241,19 +240,42 @@ if __name__ == '__main__':
     logger.info("Bot is ready! Use /start to begin.")
     logger.info("=" * 50)
     
-    # Remove webhook if exists
+    # FORCE remove webhook and stop any existing polling
     try:
+        logger.info("Removing webhook...")
         bot.remove_webhook()
         logger.info("Webhook removed successfully")
     except Exception as e:
         logger.warning(f"Could not remove webhook: {e}")
     
-    # Start polling with retry
+    # Wait a bit for Telegram to process
+    time.sleep(2)
+    
+    # Start polling with proper error handling
+    logger.info("Starting polling...")
+    
     while True:
         try:
-            logger.info("Starting polling...")
-            bot.polling(none_stop=True, interval=0, timeout=60)
+            # This will run continuously
+            bot.polling(
+                none_stop=True,
+                interval=0,
+                timeout=60,
+                long_polling_timeout=60,
+                allowed_updates=['message', 'callback_query']
+            )
         except Exception as e:
             logger.error(f"Polling error: {e}")
-            logger.info("Restarting polling in 5 seconds...")
-            time.sleep(5)
+            if "409" in str(e) or "Conflict" in str(e):
+                logger.info("Conflict detected! Waiting 10 seconds before retry...")
+                time.sleep(10)
+                # Try to remove webhook again
+                try:
+                    bot.remove_webhook()
+                    logger.info("Webhook removed after conflict")
+                except:
+                    pass
+                time.sleep(2)
+            else:
+                logger.info("Restarting polling in 5 seconds...")
+                time.sleep(5)
