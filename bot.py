@@ -210,9 +210,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Auto-detect and log chat info
     logger.info(f"Message from {chat_type} '{chat_title}' (ID: {chat_id})")
-    
-    # Don't reply to non-command messages
-    # but you can add custom logic here if needed
 
 def main():
     """Start the bot"""
@@ -223,8 +220,12 @@ def main():
         logger.info("Please set your bot token in Railway environment variables")
         return
     
-    # Create application
-    application = Application.builder().token(token).build()
+    # Create application with updated parameters
+    application = (
+        Application.builder()
+        .token(token)
+        .build()
+    )
     
     # Add command handlers
     application.add_handler(CommandHandler("start", start))
@@ -246,7 +247,13 @@ def main():
     # Start the bot
     logger.info("Starting Venture1 Bot...")
     logger.info("Bot is ready! Use /start to begin.")
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    
+    # Run the bot with error handling
+    try:
+        application.run_polling()
+    except Exception as e:
+        logger.error(f"Error running bot: {e}")
+        raise
 
 if __name__ == '__main__':
     main()
