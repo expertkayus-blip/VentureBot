@@ -25,21 +25,21 @@ bot = telebot.TeleBot(TOKEN)
 
 # Business ideas
 BUSINESS_IDEAS = [
-    "🚀 **AI-Powered Personal Shopping Assistant** - Create an AI that helps users find the best deals and products based on their preferences and budget.",
-    "💡 **Remote Team Building Platform** - Develop a platform with virtual team building activities, games, and challenges for remote companies.",
-    "📱 **Mental Health Check-in App** - Build an app that sends daily mental health check-ins and provides resources based on user responses.",
-    "🌱 **Sustainable Product Marketplace** - Create a marketplace exclusively for eco-friendly and sustainable products with carbon footprint tracking.",
-    "💻 **No-Code Automation Tool** - Develop a tool that allows non-technical users to automate their workflows without coding.",
-    "📚 **Personalized Learning Platform** - Build an AI-powered platform that creates custom learning paths for users based on their goals and learning style.",
-    "🍽️ **Meal Planning & Grocery Delivery** - Create a service that plans weekly meals, generates shopping lists, and delivers groceries.",
-    "🏋️ **Fitness Progress Tracker** - Develop an app that uses computer vision to track workout form and progress over time.",
-    "🎓 **Skill-Based Micro-Learning** - Build a platform offering 5-minute daily lessons on various skills with gamification.",
-    "🏠 **Smart Home Energy Management** - Create a system that optimizes home energy usage and provides cost-saving recommendations.",
-    "🚗 **EV Charging Station Locator** - Develop an app that shows real-time availability of EV charging stations with booking features.",
-    "💼 **Freelancer Portfolio Builder** - Build a tool that helps freelancers create professional portfolios and find clients.",
-    "🎮 **Educational Gaming Platform** - Create games that teach coding, languages, or other skills through interactive play.",
-    "📊 **Social Media Analytics Tool** - Develop a comprehensive analytics tool for content creators across multiple platforms.",
-    "🏦 **Personal Finance Coach** - Build an AI-powered app that analyzes spending habits and provides personalized financial advice."
+    "🚀 AI-Powered Personal Shopping Assistant - Create an AI that helps users find the best deals and products based on their preferences and budget.",
+    "💡 Remote Team Building Platform - Develop a platform with virtual team building activities, games, and challenges for remote companies.",
+    "📱 Mental Health Check-in App - Build an app that sends daily mental health check-ins and provides resources based on user responses.",
+    "🌱 Sustainable Product Marketplace - Create a marketplace exclusively for eco-friendly and sustainable products with carbon footprint tracking.",
+    "💻 No-Code Automation Tool - Develop a tool that allows non-technical users to automate their workflows without coding.",
+    "📚 Personalized Learning Platform - Build an AI-powered platform that creates custom learning paths for users based on their goals and learning style.",
+    "🍽️ Meal Planning & Grocery Delivery - Create a service that plans weekly meals, generates shopping lists, and delivers groceries.",
+    "🏋️ Fitness Progress Tracker - Develop an app that uses computer vision to track workout form and progress over time.",
+    "🎓 Skill-Based Micro-Learning - Build a platform offering 5-minute daily lessons on various skills with gamification.",
+    "🏠 Smart Home Energy Management - Create a system that optimizes home energy usage and provides cost-saving recommendations.",
+    "🚗 EV Charging Station Locator - Develop an app that shows real-time availability of EV charging stations with booking features.",
+    "💼 Freelancer Portfolio Builder - Build a tool that helps freelancers create professional portfolios and find clients.",
+    "🎮 Educational Gaming Platform - Create games that teach coding, languages, or other skills through interactive play.",
+    "📊 Social Media Analytics Tool - Develop a comprehensive analytics tool for content creators across multiple platforms.",
+    "🏦 Personal Finance Coach - Build an AI-powered app that analyzes spending habits and provides personalized financial advice."
 ]
 
 # Store active chats
@@ -51,9 +51,9 @@ def send_idea(chat_id):
     try:
         idea = random.choice(BUSINESS_IDEAS)
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
-        message = f"💡 **Business Idea**\n\n{idea}\n\n---\n⏰ {timestamp}\n\n🚀 *Venture1 Bot*"
+        message = f"💡 Business Idea\n\n{idea}\n\n---\n⏰ {timestamp}\n\n🚀 Venture1 Bot"
         
-        bot.send_message(chat_id, message, parse_mode='Markdown')
+        bot.send_message(chat_id, message)
         logger.info(f"Posted idea to chat: {chat_id}")
         return True
     except Exception as e:
@@ -82,34 +82,41 @@ def send_welcome(message):
         chat_id = message.chat.id
         logger.info(f"Start command received from chat: {chat_id}")
         
-        bot.reply_to(
-            message,
-            f"🌟 **Welcome to Venture1 Bot!** 🌟\n\n"
+        welcome_text = (
+            "🌟 Welcome to Venture1 Bot! 🌟\n\n"
             f"Hello {user.first_name}! I'm here to share amazing business ideas with you.\n\n"
-            f"**Commands:**\n"
-            f"📌 /start - Show this message\n"
-            f"▶️ /start_bot - Start posting business ideas every 5 minutes\n"
-            f"⏹️ /stop_bot - Stop posting business ideas\n"
-            f"💡 /idea - Get a random business idea now\n"
-            f"📊 /status - Check bot status\n\n"
-            f"**How to use in groups/channels:**\n"
-            f"1. Add me as an admin to your group or channel\n"
-            f"2. Use /start_bot to begin posting\n"
-            f"3. I'll automatically detect where to post!",
-            parse_mode='Markdown'
+            "Commands:\n"
+            "📌 /start - Show this message\n"
+            "▶️ /start_bot - Start posting business ideas every 5 minutes\n"
+            "⏹️ /stop_bot - Stop posting business ideas\n"
+            "💡 /idea - Get a random business idea now\n"
+            "📊 /status - Check bot status\n\n"
+            "How to use in groups/channels:\n"
+            "1. Add me as an admin to your group or channel\n"
+            "2. Use /start_bot to begin posting\n"
+            "3. I'll automatically detect where to post!"
         )
+        
+        bot.reply_to(message, welcome_text)
+        logger.info(f"Welcome message sent to chat: {chat_id}")
     except Exception as e:
         logger.error(f"Error in start command: {e}")
+        # Try sending a simple message if the formatted one fails
+        try:
+            bot.reply_to(message, "Welcome to Venture1 Bot! Use /start_bot to begin posting ideas.")
+        except:
+            pass
 
 @bot.message_handler(commands=['idea'])
 def send_idea_command(message):
     try:
         chat_id = message.chat.id
         idea = random.choice(BUSINESS_IDEAS)
-        bot.reply_to(message, f"💡 **Business Idea**\n\n{idea}", parse_mode='Markdown')
+        bot.reply_to(message, f"💡 Business Idea\n\n{idea}")
         logger.info(f"Idea command from chat: {chat_id}")
     except Exception as e:
         logger.error(f"Error in idea command: {e}")
+        bot.reply_to(message, "Sorry, I couldn't generate an idea right now.")
 
 @bot.message_handler(commands=['start_bot'])
 def start_bot_command(message):
@@ -130,10 +137,9 @@ def start_bot_command(message):
         
         bot.reply_to(
             message,
-            "✅ **Bot Started!**\n\n"
+            "✅ Bot Started!\n\n"
             "I'll post a new business idea every 5 minutes in this chat.\n"
-            "Use /stop_bot to stop the posts.",
-            parse_mode='Markdown'
+            "Use /stop_bot to stop the posts."
         )
         logger.info(f"Bot started successfully for chat: {chat_id}")
     except Exception as e:
@@ -152,10 +158,9 @@ def stop_bot_command(message):
                 del posting_threads[chat_id]
             bot.reply_to(
                 message,
-                "⏹️ **Bot Stopped!**\n\n"
+                "⏹️ Bot Stopped!\n\n"
                 "I've stopped posting business ideas.\n"
-                "Use /start_bot to restart.",
-                parse_mode='Markdown'
+                "Use /start_bot to restart."
             )
             logger.info(f"Bot stopped for chat: {chat_id}")
         else:
@@ -176,19 +181,17 @@ def status_command(message):
         if chat_id in active_chats and active_chats[chat_id]:
             bot.reply_to(
                 message,
-                "🟢 **Status: Running**\n\n"
+                "🟢 Status: Running\n\n"
                 "✅ Bot is active and posting business ideas every 5 minutes.\n"
                 "📅 Last idea was posted recently.\n\n"
-                "Use /stop_bot to stop the posts.",
-                parse_mode='Markdown'
+                "Use /stop_bot to stop the posts."
             )
         else:
             bot.reply_to(
                 message,
-                "🔴 **Status: Stopped**\n\n"
+                "🔴 Status: Stopped\n\n"
                 "❌ Bot is not currently posting.\n"
-                "Use /start_bot to start posting!",
-                parse_mode='Markdown'
+                "Use /start_bot to start posting!"
             )
     except Exception as e:
         logger.error(f"Error in status command: {e}")
@@ -205,19 +208,19 @@ def handle_new_members(message):
                 logger.info(f"Bot added to chat: {chat_id} - {chat_title}")
                 
                 welcome = (
-                    f"🎉 **Thanks for adding me to {chat_title}!** 🎉\n\n"
-                    f"📌 **Chat Type:** {chat_type}\n"
-                    f"🆔 **Chat ID:** `{chat_id}`\n\n"
-                    f"**To start posting business ideas:**\n"
+                    f"🎉 Thanks for adding me to {chat_title}! 🎉\n\n"
+                    f"📌 Chat Type: {chat_type}\n"
+                    f"🆔 Chat ID: {chat_id}\n\n"
+                    f"To start posting business ideas:\n"
                     f"▶️ Use /start_bot\n\n"
-                    f"**Other commands:**\n"
+                    f"Other commands:\n"
                     f"⏹️ /stop_bot - Stop posting\n"
                     f"💡 /idea - Get an idea now\n"
                     f"📊 /status - Check status\n\n"
                     f"✨ I'll automatically detect where to post!"
                 )
                 
-                bot.reply_to(message, welcome, parse_mode='Markdown')
+                bot.reply_to(message, welcome)
                 break
     except Exception as e:
         logger.error(f"Error in new_members handler: {e}")
@@ -227,7 +230,7 @@ def echo_all(message):
     """Handle any other messages"""
     try:
         chat_id = message.chat.id
-        # Don't reply to non-command messages
+        # Only log, don't reply to avoid spam
         logger.info(f"Message from chat {chat_id}: {message.text}")
     except Exception as e:
         logger.error(f"Error in echo_all: {e}")
@@ -240,7 +243,7 @@ if __name__ == '__main__':
     logger.info("Bot is ready! Use /start to begin.")
     logger.info("=" * 50)
     
-    # FORCE remove webhook and stop any existing polling
+    # Force remove webhook
     try:
         logger.info("Removing webhook...")
         bot.remove_webhook()
@@ -251,25 +254,22 @@ if __name__ == '__main__':
     # Wait a bit for Telegram to process
     time.sleep(2)
     
-    # Start polling with proper error handling
+    # Start polling
     logger.info("Starting polling...")
     
     while True:
         try:
-            # This will run continuously
             bot.polling(
                 none_stop=True,
                 interval=0,
                 timeout=60,
-                long_polling_timeout=60,
-                allowed_updates=['message', 'callback_query']
+                long_polling_timeout=60
             )
         except Exception as e:
             logger.error(f"Polling error: {e}")
             if "409" in str(e) or "Conflict" in str(e):
                 logger.info("Conflict detected! Waiting 10 seconds before retry...")
                 time.sleep(10)
-                # Try to remove webhook again
                 try:
                     bot.remove_webhook()
                     logger.info("Webhook removed after conflict")
